@@ -25,7 +25,7 @@ function Cursor (client) {
 
   this.select = (x = this.x, y = this.y, w = this.w, h = this.h) => {
     if (isNaN(x) || isNaN(y) || isNaN(w) || isNaN(h)) { return }
-    const rect = { x: clamp(parseInt(x), 0, client.orca.w - 1), y: clamp(parseInt(y), 0, client.orca.h - 1), w: clamp(parseInt(w), -this.x, client.orca.w - 1), h: clamp(parseInt(h), -this.y, client.orca.h - 1) }
+    const rect = { x: clamp(parseInt(x), 0, client.orcinus.w - 1), y: clamp(parseInt(y), 0, client.orcinus.h - 1), w: clamp(parseInt(w), -this.x, client.orcinus.w - 1), h: clamp(parseInt(h), -this.y, client.orcinus.h - 1) }
 
     if (this.x === rect.x && this.y === rect.y && this.w === rect.w && this.h === rect.h) {
       return // Don't update when unchanged
@@ -41,7 +41,7 @@ function Cursor (client) {
   }
 
   this.selectAll = () => {
-    this.select(0, 0, client.orca.w, client.orca.h)
+    this.select(0, 0, client.orcinus.w, client.orcinus.h)
     this.ins = false
   }
 
@@ -67,8 +67,8 @@ function Cursor (client) {
     const block = this.selection()
     this.erase()
     this.move(x, y)
-    client.orca.writeBlock(this.minX, this.minY, block)
-    client.history.record(client.orca.s)
+    client.orcinus.writeBlock(this.minX, this.minY, block)
+    client.history.record(client.orcinus.s)
   }
 
   this.reset = (pos = false) => {
@@ -77,44 +77,44 @@ function Cursor (client) {
   }
 
   this.read = () => {
-    return client.orca.glyphAt(this.x, this.y)
+    return client.orcinus.glyphAt(this.x, this.y)
   }
 
   this.write = (g) => {
-    if (!client.orca.isAllowed(g)) { return }
-    if (client.orca.write(this.x, this.y, g) && this.ins) {
+    if (!client.orcinus.isAllowed(g)) { return }
+    if (client.orcinus.write(this.x, this.y, g) && this.ins) {
       this.move(1, 0)
     }
-    client.history.record(client.orca.s)
+    client.history.record(client.orcinus.s)
   }
 
   this.erase = () => {
     for (let y = this.minY; y <= this.maxY; y++) {
       for (let x = this.minX; x <= this.maxX; x++) {
-        client.orca.write(x, y, '.')
+        client.orcinus.write(x, y, '.')
       }
     }
-    client.history.record(client.orca.s)
+    client.history.record(client.orcinus.s)
   }
 
   this.find = (str) => {
-    const i = client.orca.s.indexOf(str)
+    const i = client.orcinus.s.indexOf(str)
     if (i < 0) { return }
-    const pos = client.orca.posAt(i)
+    const pos = client.orcinus.posAt(i)
     this.select(pos.x, pos.y, str.length - 1, 0)
   }
 
   this.inspect = () => {
     if (this.w !== 0 || this.h !== 0) { return 'multi' }
-    const index = client.orca.indexAt(this.x, this.y)
+    const index = client.orcinus.indexAt(this.x, this.y)
     const port = client.ports[index]
     if (port) { return `${port[3]}` }
-    if (client.orca.lockAt(this.x, this.y)) { return 'locked' }
+    if (client.orcinus.lockAt(this.x, this.y)) { return 'locked' }
     return 'empty'
   }
 
   this.trigger = () => {
-    const operator = client.orca.operatorAt(this.x, this.y)
+    const operator = client.orcinus.operatorAt(this.x, this.y)
     if (!operator) { console.warn('Cursor', 'Nothing to trigger.'); return }
     console.log('Cursor', 'Trigger: ' + operator.name)
     operator.run(true)
@@ -125,18 +125,18 @@ function Cursor (client) {
     const lines = block.trim().split(/\r?\n/)
     const char = block.substr(0, 1) === '#' ? '.' : '#'
     const res = lines.map((line) => { return `${char}${line.substr(1, line.length - 2)}${char}` }).join('\n')
-    client.orca.writeBlock(this.minX, this.minY, res)
-    client.history.record(client.orca.s)
+    client.orcinus.writeBlock(this.minX, this.minY, res)
+    client.history.record(client.orcinus.s)
   }
 
   this.toUpperCase = () => {
     const block = this.selection().toUpperCase()
-    client.orca.writeBlock(this.minX, this.minY, block)
+    client.orcinus.writeBlock(this.minX, this.minY, block)
   }
 
   this.toLowerCase = () => {
     const block = this.selection().toLowerCase()
-    client.orca.writeBlock(this.minX, this.minY, block)
+    client.orcinus.writeBlock(this.minX, this.minY, block)
   }
 
   this.toRect = () => {
@@ -160,7 +160,7 @@ function Cursor (client) {
   }
 
   this.selection = (rect = this.toRect()) => {
-    return client.orca.getBlock(rect.x, rect.y, rect.w, rect.h)
+    return client.orcinus.getBlock(rect.x, rect.y, rect.w, rect.h)
   }
 
   this.mouseFrom = null
@@ -218,8 +218,8 @@ function Cursor (client) {
 
   this.onPaste = (e) => {
     const data = e.clipboardData.getData('text/plain').trim()
-    client.orca.writeBlock(this.minX, this.minY, data, this.ins)
-    client.history.record(client.orca.s)
+    client.orcinus.writeBlock(this.minX, this.minY, data, this.ins)
+    client.history.record(client.orcinus.s)
     this.scaleTo(data.split(/\r?\n/)[0].length - 1, data.split(/\r?\n/).length - 1)
     e.preventDefault()
   }

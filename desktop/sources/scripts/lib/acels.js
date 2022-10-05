@@ -93,22 +93,14 @@ function Acels (client) {
 
   // Electron specifics
 
-  this.inject = (name = 'Untitled') => {
+  this.inject = (name = 'orcinus') => {
     const app = require('electron').remote.app
     const injection = []
 
     injection.push({
       label: name,
       submenu: [
-        { label: 'About', click: () => { require('electron').shell.openExternal('https://github.com/hundredrabbits/' + name) } },
-        {
-          label: 'Theme',
-          submenu: [
-            { label: 'Download Themes', click: () => { require('electron').shell.openExternal('https://github.com/hundredrabbits/Themes') } },
-            { label: 'Open Theme', click: () => { client.theme.open() } },
-            { label: 'Reset Theme', accelerator: 'CmdOrCtrl+Escape', click: () => { client.theme.reset() } }
-          ]
-        },
+        { label: 'About', click: () => { require('electron').shell.openExternal('https://github.com/emanuelbuholzer/' + name) } },
         { label: 'Fullscreen', accelerator: 'CmdOrCtrl+Enter', click: () => { app.toggleFullscreen() } },
         { label: 'Hide', accelerator: 'CmdOrCtrl+H', click: () => { app.toggleVisible() } },
         { label: 'Toggle Menubar', accelerator: 'Alt+H', click: () => { app.toggleMenubar() } },

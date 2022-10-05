@@ -1,6 +1,6 @@
 'use strict'
 
-function Operator (orca, x, y, glyph = '.', passive = false) {
+function Operator (orcinus, x, y, glyph = '.', passive = false) {
   this.name = 'unknown'
   this.x = x
   this.y = y
@@ -14,12 +14,12 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
 
   this.listen = function (port, toValue = false) {
     if (!port) { return (toValue ? 0 : '.') }
-    const g = orca.glyphAt(this.x + port.x, this.y + port.y)
+    const g = orcinus.glyphAt(this.x + port.x, this.y + port.y)
     const glyph = (g === '.' || g === '*') && port.default ? port.default : g
     if (toValue) {
       const min = port.clamp && port.clamp.min ? port.clamp.min : 0
       const max = port.clamp && port.clamp.max ? port.clamp.max : 36
-      return clamp(orca.valueOf(glyph), min, max)
+      return clamp(orcinus.valueOf(glyph), min, max)
     }
     return glyph
   }
@@ -27,13 +27,13 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
   this.output = function (g, port = this.ports.output) {
     if (!port) { console.warn(this.name, 'Trying to output, but no port'); return }
     if (!g) { return }
-    orca.write(this.x + port.x, this.y + port.y, this.shouldUpperCase() === true ? `${g}`.toUpperCase() : g)
+    orcinus.write(this.x + port.x, this.y + port.y, this.shouldUpperCase() === true ? `${g}`.toUpperCase() : g)
   }
 
   this.bang = function (b) {
     if (!this.ports.output) { console.warn(this.name, 'Trying to bang, but no port'); return }
-    orca.write(this.x + this.ports.output.x, this.y + this.ports.output.y, b ? '*' : '.')
-    orca.lock(this.x + this.ports.output.x, this.y + this.ports.output.y)
+    orcinus.write(this.x + this.ports.output.x, this.y + this.ports.output.y, b ? '*' : '.')
+    orcinus.lock(this.x + this.ports.output.x, this.y + this.ports.output.y)
   }
 
   // Phases
@@ -44,7 +44,7 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
     // Permissions
     for (const port of Object.values(this.ports)) {
       if (port.bang) { continue }
-      orca.lock(this.x + port.x, this.y + port.y)
+      orcinus.lock(this.x + port.x, this.y + port.y)
     }
 
     if (this.ports.output) {
@@ -63,11 +63,11 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
   // Helpers
 
   this.lock = function () {
-    orca.lock(this.x, this.y)
+    orcinus.lock(this.x, this.y)
   }
 
   this.replace = function (g) {
-    orca.write(this.x, this.y, g)
+    orcinus.write(this.x, this.y, g)
   }
 
   this.erase = function () {
@@ -80,8 +80,8 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
 
   this.move = function (x, y) {
     const offset = { x: this.x + x, y: this.y + y }
-    if (!orca.inBounds(offset.x, offset.y)) { this.explode(); return }
-    if (orca.glyphAt(offset.x, offset.y) !== '.') { this.explode(); return }
+    if (!orcinus.inBounds(offset.x, offset.y)) { this.explode(); return }
+    if (orcinus.glyphAt(offset.x, offset.y) !== '.') { this.explode(); return }
     this.erase()
     this.x += x
     this.y += y
@@ -90,10 +90,10 @@ function Operator (orca, x, y, glyph = '.', passive = false) {
   }
 
   this.hasNeighbor = function (g) {
-    if (orca.glyphAt(this.x + 1, this.y) === g) { return true }
-    if (orca.glyphAt(this.x - 1, this.y) === g) { return true }
-    if (orca.glyphAt(this.x, this.y + 1) === g) { return true }
-    if (orca.glyphAt(this.x, this.y - 1) === g) { return true }
+    if (orcinus.glyphAt(this.x + 1, this.y) === g) { return true }
+    if (orcinus.glyphAt(this.x - 1, this.y) === g) { return true }
+    if (orcinus.glyphAt(this.x, this.y + 1) === g) { return true }
+    if (orcinus.glyphAt(this.x, this.y - 1) === g) { return true }
     return false
   }
 

@@ -16,7 +16,6 @@ app.on('ready', () => {
     minWidth: 380,
     minHeight: 360,
     backgroundColor: '#000',
-    icon: path.join(__dirname, { darwin: 'icon.icns', linux: 'icon.png', win32: 'icon.ico' }[process.platform] || 'icon.ico'),
     resizable: true,
     frame: process.platform !== 'darwin',
     skipTaskbar: process.platform === 'darwin',
@@ -25,7 +24,6 @@ app.on('ready', () => {
   })
 
   app.win.loadURL(`file://${__dirname}/sources/index.html`)
-  // app.inspect()
 
   app.win.on('closed', () => {
     app.quit()

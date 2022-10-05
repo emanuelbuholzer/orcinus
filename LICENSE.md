@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2017 Hundredrabbits
+Copyright for portions of orcinus are held by [Hundredrabbits, 2017] as part of Orcinus. 
+All other copyright for orcinus are held by [Emanuel Buholzer, 2022].
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

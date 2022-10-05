@@ -1,6 +1,6 @@
 'use strict'
 
-function Orca (library) {
+function Orcinus (library) {
   this.keys = '0123456789abcdefghijklmnopqrstuvwxyz'.split('')
 
   this.w = 1 // Default Width

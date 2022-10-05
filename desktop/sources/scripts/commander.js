@@ -13,28 +13,15 @@ function Commander (client) {
     select: (p) => { client.cursor.select(p.x, p.y, p.w || 0, p.h || 0) },
     inject: (p) => {
       client.cursor.select(p._x, p._y)
-      if (client.source.cache[p._str + '.orca']) {
-        const block = client.source.cache[p._str + '.orca']
-        const rect = client.orca.toRect(block)
+      if (client.source.cache[p._str + '.orcinus']) {
+        const block = client.source.cache[p._str + '.orcinus']
+        const rect = client.orcinus.toRect(block)
         client.cursor.scaleTo(rect.x, rect.y)
       }
     }
   }
 
   this.actives = {
-    // Ports
-    osc: (p) => { client.io.osc.select(p.int) },
-    udp: (p) => {
-      client.io.udp.selectOutput(p.x)
-      if (p.y !== null) { client.io.udp.selectInput(p.y) }
-    },
-    midi: (p) => {
-      client.io.midi.selectOutput(p.x)
-      if (p.y !== null) { client.io.midi.selectInput(p.y) }
-    },
-    ip: (p) => { client.io.setIp(p.str) },
-    cc: (p) => { client.io.cc.setOffset(p.int) },
-    pg: (p) => { client.io.cc.stack.push({ channel: clamp(p.ints[0], 0, 15), bank: p.ints[1], sub: p.ints[2], pgm: clamp(p.ints[3], 0, 127), type: 'pg' }); client.io.cc.run() },
     // Cursor
     copy: (p) => { client.cursor.copy() },
     paste: (p) => { client.cursor.paste(true) },
@@ -47,29 +34,23 @@ function Commander (client) {
     apm: (p) => { client.clock.setSpeed(null, p.int) },
     bpm: (p) => { client.clock.setSpeed(p.int, p.int, true) },
     frame: (p) => { client.clock.setFrame(p.int) },
-    rewind: (p) => { client.clock.setFrame(client.orca.f - p.int) },
-    skip: (p) => { client.clock.setFrame(client.orca.f + p.int) },
+    rewind: (p) => { client.clock.setFrame(client.orcinus.f - p.int) },
+    skip: (p) => { client.clock.setFrame(client.orcinus.f + p.int) },
     time: (p, origin) => {
-      const formatted = new Date(250 * (client.orca.f * (60 / client.clock.speed.value))).toISOString().substr(14, 5).replace(/:/g, '')
-      client.orca.writeBlock(origin ? origin.x : client.cursor.x, origin ? origin.y : client.cursor.y, `${formatted}`)
-    },
-    // Themeing
-    color: (p) => {
-      if (p.parts[0]) { client.theme.set('b_low', p.parts[0]) }
-      if (p.parts[1]) { client.theme.set('b_med', p.parts[1]) }
-      if (p.parts[2]) { client.theme.set('b_high', p.parts[2]) }
+      const formatted = new Date(250 * (client.orcinus.f * (60 / client.clock.speed.value))).toISOString().substr(14, 5).replace(/:/g, '')
+      client.orcinus.writeBlock(origin ? origin.x : client.cursor.x, origin ? origin.y : client.cursor.y, `${formatted}`)
     },
     // Edit
     find: (p) => { client.cursor.find(p.str) },
     select: (p) => { client.cursor.select(p.x, p.y, p.w || 0, p.h || 0) },
     inject: (p, origin) => {
-      const block = client.source.cache[p._str + '.orca']
+      const block = client.source.cache[p._str + '.orcinus']
       if (!block) { console.warn('Commander', 'Unknown block: ' + p._str); return }
-      client.orca.writeBlock(origin ? origin.x : client.cursor.x, origin ? origin.y : client.cursor.y, block)
+      client.orcinus.writeBlock(origin ? origin.x : client.cursor.x, origin ? origin.y : client.cursor.y, block)
       client.cursor.scaleTo(0, 0)
     },
     write: (p) => {
-      client.orca.writeBlock(p._x || client.cursor.x, p._y || client.cursor.y, p._str)
+      client.orcinus.writeBlock(p._x || client.cursor.x, p._y || client.cursor.y, p._str)
     }
   }
 

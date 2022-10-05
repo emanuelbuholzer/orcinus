@@ -1,10 +1,8 @@
-// 176
+// 0
 
 const assets = [
   './',
-  './favicon.ico',
   './manifest.json',
-  './desktop/icon.png',
   './desktop/sources/links/main.css',
   './desktop/sources/scripts/lib/acels.js',
   './desktop/sources/scripts/lib/theme.js',
@@ -13,10 +11,10 @@ const assets = [
   './desktop/sources/scripts/core/library.js',
   './desktop/sources/scripts/core/io.js',
   './desktop/sources/scripts/core/operator.js',
-  './desktop/sources/scripts/core/orca.js',
+  './desktop/sources/scripts/core/orcinus.js',
   './desktop/sources/scripts/core/transpose.js',
   './desktop/sources/scripts/core/io/cc.js',
-  './desktop/sources/scripts/core/io/midi.js',
+  './desktop/sources/scripts/core/io/poly.js',
   './desktop/sources/scripts/core/io/mono.js',
   './desktop/sources/scripts/core/io/osc.js',
   './desktop/sources/scripts/core/io/udp.js',
@@ -27,7 +25,7 @@ const assets = [
 ]
 
 self.addEventListener('install', async function () {
-  const cache = await caches.open('Orca')
+  const cache = await caches.open('orcinus')
   assets.forEach(function (asset) {
     cache.add(asset).catch(function () {
       console.error('serviceWorker', 'Cound not cache:', asset)

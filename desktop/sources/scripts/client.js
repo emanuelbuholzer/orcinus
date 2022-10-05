@@ -4,7 +4,7 @@
 /* global Acels */
 /* global Source */
 /* global History */
-/* global Orca */
+/* global Orcinus */
 /* global IO */
 /* global Cursor */
 /* global Commander */
@@ -20,7 +20,7 @@ function Client () {
   this.source = new Source(this)
   this.history = new History(this)
 
-  this.orca = new Orca(this.library)
+  this.orcinus = new Orcinus(this.library)
   this.io = new IO(this)
   this.cursor = new Cursor(this)
   this.commander = new Commander(this)
@@ -42,13 +42,12 @@ function Client () {
     host.appendChild(this.el)
     this.theme.install(host)
 
-    this.theme.default = { background: '#000000', f_high: '#ffffff', f_med: '#777777', f_low: '#444444', f_inv: '#000000', b_high: '#eeeeee', b_med: '#72dec2', b_low: '#444444', b_inv: '#ffb545' }
 
     this.acels.set('File', 'New', 'CmdOrCtrl+N', () => { this.reset() })
-    this.acels.set('File', 'Open', 'CmdOrCtrl+O', () => { this.source.open('orca', this.whenOpen, true) })
-    this.acels.set('File', 'Import Modules', 'CmdOrCtrl+L', () => { this.source.load('orca') })
-    this.acels.set('File', 'Export', 'CmdOrCtrl+S', () => { this.source.write('orca', 'orca', `${this.orca}`, 'text/plain') })
-    this.acels.set('File', 'Export Selection', 'CmdOrCtrl+Shift+S', () => { this.source.write('orca', 'orca', `${this.cursor.selection()}`, 'text/plain') })
+    this.acels.set('File', 'Open', 'CmdOrCtrl+O', () => { this.source.open('orcinus', this.whenOpen, true) })
+    this.acels.set('File', 'Import Modules', 'CmdOrCtrl+L', () => { this.source.load('orcinus') })
+    this.acels.set('File', 'Export', 'CmdOrCtrl+S', () => { this.source.write('orcinus', 'orcinus', `${this.orcinus}`, 'text/plain') })
+    this.acels.set('File', 'Export Selection', 'CmdOrCtrl+Shift+S', () => { this.source.write('orcinus', 'orcinus', `${this.cursor.selection()}`, 'text/plain') })
 
     this.acels.set('Edit', 'Undo', 'CmdOrCtrl+Z', () => { this.history.undo() })
     this.acels.set('Edit', 'Redo', 'CmdOrCtrl+Shift+Z', () => { this.history.redo() })
@@ -113,14 +112,6 @@ function Client () {
     this.acels.set('View', 'Zoom Out', 'CmdOrCtrl+-', () => { this.modZoom(-0.0625) })
     this.acels.set('View', 'Zoom Reset', 'CmdOrCtrl+0', () => { this.modZoom(1, true) })
 
-    this.acels.set('Midi', 'Play/Pause Midi', 'CmdOrCtrl+Space', () => { this.clock.togglePlay(true) })
-    this.acels.set('Midi', 'Next Input Device', 'CmdOrCtrl+,', () => { this.clock.setFrame(0); this.io.midi.selectNextInput() })
-    this.acels.set('Midi', 'Next Output Device', 'CmdOrCtrl+.', () => { this.clock.setFrame(0); this.io.midi.selectNextOutput() })
-    this.acels.set('Midi', 'Refresh Devices', 'CmdOrCtrl+Shift+M', () => { this.io.midi.refresh() })
-
-    this.acels.set('Communication', 'Choose OSC Port', 'alt+O', () => { this.commander.start('osc:') })
-    this.acels.set('Communication', 'Choose UDP Port', 'alt+U', () => { this.commander.start('udp:') })
-
     this.acels.install(window)
     this.acels.pipe(this.commander)
   }
@@ -130,8 +121,8 @@ function Client () {
     console.info(`${this.acels}`)
     this.theme.start()
     this.io.start()
-    this.history.bind(this.orca, 's')
-    this.history.record(this.orca.s)
+    this.history.bind(this.orcinus, 's')
+    this.history.record(this.orcinus.s)
     this.clock.start()
     this.cursor.start()
 
@@ -141,10 +132,12 @@ function Client () {
     this.el.className = 'ready'
 
     this.toggleGuide()
+
+    this.clock.togglePlay(false)
   }
 
   this.reset = () => {
-    this.orca.reset()
+    this.orcinus.reset()
     this.resize()
     this.source.new()
     this.history.reset()
@@ -155,7 +148,7 @@ function Client () {
   this.run = () => {
     this.io.clear()
     this.clock.run()
-    this.orca.run()
+    this.orcinus.run()
     this.io.run()
     this.update()
   }
@@ -175,9 +168,9 @@ function Client () {
     const h = lines.length
     const s = lines.join('\n').trim()
 
-    this.orca.load(w, h, s)
+    this.orcinus.load(w, h, s)
     this.history.reset()
-    this.history.record(this.orca.s)
+    this.history.record(this.orcinus.s)
     this.resize()
   }
 
@@ -238,16 +231,16 @@ function Client () {
   }
 
   this.isInvisible = (x, y) => {
-    return this.orca.glyphAt(x, y) === '.' && !this.isMarker(x, y) && !this.cursor.selected(x, y) && !this.isLocals(x, y) && !this.ports[this.orca.indexAt(x, y)] && !this.orca.lockAt(x, y)
+    return this.orcinus.glyphAt(x, y) === '.' && !this.isMarker(x, y) && !this.cursor.selected(x, y) && !this.isLocals(x, y) && !this.ports[this.orcinus.indexAt(x, y)] && !this.orcinus.lockAt(x, y)
   }
 
   this.findPorts = () => {
-    const a = new Array((this.orca.w * this.orca.h) - 1)
-    for (const operator of this.orca.runtime) {
-      if (this.orca.lockAt(operator.x, operator.y)) { continue }
+    const a = new Array((this.orcinus.w * this.orcinus.h) - 1)
+    for (const operator of this.orcinus.runtime) {
+      if (this.orcinus.lockAt(operator.x, operator.y)) { continue }
       const ports = operator.getPorts()
       for (const port of ports) {
-        const index = this.orca.indexAt(port[0], port[1])
+        const index = this.orcinus.indexAt(port[0], port[1])
         a[index] = port
       }
     }
@@ -293,12 +286,12 @@ function Client () {
 
   this.drawProgram = () => {
     const selection = this.cursor.read()
-    for (let y = 0; y < this.orca.h; y++) {
-      for (let x = 0; x < this.orca.w; x++) {
+    for (let y = 0; y < this.orcinus.h; y++) {
+      for (let x = 0; x < this.orcinus.w; x++) {
         // Handle blanks
         if (this.isInvisible(x, y)) { continue }
         // Make Glyph
-        const g = this.orca.glyphAt(x, y)
+        const g = this.orcinus.glyphAt(x, y)
         // Get glyph
         const glyph = g !== '.' ? g : this.isCursor(x, y) ? (this.clock.isPaused ? '~' : '@') : this.isMarker(x, y) ? '+' : g
         // Make Style
@@ -309,32 +302,29 @@ function Client () {
 
   this.makeStyle = (x, y, glyph, selection) => {
     if (this.cursor.selected(x, y)) { return 4 }
-    const isLocked = this.orca.lockAt(x, y)
+    const isLocked = this.orcinus.lockAt(x, y)
     if (selection === glyph && isLocked === false && selection !== '.') { return 6 }
     if (glyph === '*' && isLocked === false) { return 2 }
-    const port = this.ports[this.orca.indexAt(x, y)]
+    const port = this.ports[this.orcinus.indexAt(x, y)]
     if (port) { return port[2] }
     if (isLocked === true) { return 5 }
     return 20
   }
 
   this.drawInterface = () => {
-    this.write(`${this.cursor.inspect()}`, this.grid.w * 0, this.orca.h, this.grid.w - 1)
-    this.write(`${this.cursor.x},${this.cursor.y}${this.cursor.ins ? '+' : ''}`, this.grid.w * 1, this.orca.h, this.grid.w, this.cursor.ins ? 1 : 2)
-    this.write(`${this.cursor.w}:${this.cursor.h}`, this.grid.w * 2, this.orca.h, this.grid.w)
-    this.write(`${this.orca.f}f${this.clock.isPaused ? '~' : ''}`, this.grid.w * 3, this.orca.h, this.grid.w)
-    this.write(`${this.io.inspect(this.grid.w)}`, this.grid.w * 4, this.orca.h, this.grid.w - 1)
-    this.write(this.orca.f < 250 ? `< ${this.io.midi.toInputString()}` : '', this.grid.w * 5, this.orca.h, this.grid.w * 4)
+    this.write(`${this.cursor.inspect()}`, this.grid.w * 0, this.orcinus.h, this.grid.w - 1)
+    this.write(`${this.cursor.x},${this.cursor.y}${this.cursor.ins ? '+' : ''}`, this.grid.w * 1, this.orcinus.h, this.grid.w, this.cursor.ins ? 1 : 2)
+    this.write(`${this.cursor.w}:${this.cursor.h}`, this.grid.w * 2, this.orcinus.h, this.grid.w)
+    this.write(`${this.orcinus.f}f${this.clock.isPaused ? '~' : ''}`, this.grid.w * 3, this.orcinus.h, this.grid.w)
 
     if (this.commander.isActive === true) {
-      this.write(`${this.commander.query}${this.orca.f % 2 === 0 ? '_' : ''}`, this.grid.w * 0, this.orca.h + 1, this.grid.w * 4)
+      this.write(`${this.commander.query}${this.orcinus.f % 2 === 0 ? '_' : ''}`, this.grid.w * 0, this.orcinus.h + 1, this.grid.w * 4)
     } else {
-      this.write(this.orca.f < 25 ? `ver${this.version}` : `${Object.keys(this.source.cache).length} mods`, this.grid.w * 0, this.orca.h + 1, this.grid.w)
-      this.write(`${this.orca.w}x${this.orca.h}`, this.grid.w * 1, this.orca.h + 1, this.grid.w)
-      this.write(`${this.grid.w}/${this.grid.h}${this.tile.w !== 10 ? ' ' + (this.tile.w / 10).toFixed(1) : ''}`, this.grid.w * 2, this.orca.h + 1, this.grid.w)
-      this.write(`${this.clock}`, this.grid.w * 3, this.orca.h + 1, this.grid.w, this.clock.isPuppet ? 3 : this.io.midi.isClock ? 11 : this.clock.isPaused ? 20 : 2)
-      this.write(`${display(Object.keys(this.orca.variables).join(''), this.orca.f, this.grid.w - 1)}`, this.grid.w * 4, this.orca.h + 1, this.grid.w - 1)
-      this.write(this.orca.f < 250 ? `> ${this.io.midi.toOutputString()}` : '', this.grid.w * 5, this.orca.h + 1, this.grid.w * 4)
+      this.write(this.orcinus.f < 25 ? `ver${this.version}` : `${Object.keys(this.source.cache).length} mods`, this.grid.w * 0, this.orcinus.h + 1, this.grid.w)
+      this.write(`${this.orcinus.w}x${this.orcinus.h}`, this.grid.w * 1, this.orcinus.h + 1, this.grid.w)
+      this.write(`${this.grid.w}/${this.grid.h}${this.tile.w !== 10 ? ' ' + (this.tile.w / 10).toFixed(1) : ''}`, this.grid.w * 2, this.orcinus.h + 1, this.grid.w)
+      this.write(`${this.clock}`, this.grid.w * 3, this.orcinus.h + 1, this.grid.w, this.clock.isPaused ? 20 : 2)
+      this.write(`${display(Object.keys(this.orcinus.variables).join(''), this.orcinus.f, this.grid.w - 1)}`, this.grid.w * 4, this.orcinus.h + 1, this.grid.w - 1)
     }
   }
 
@@ -345,7 +335,7 @@ function Client () {
       const key = operators[id]
       const oper = new this.library[key]()
       const text = oper.info
-      const frame = this.orca.h - 4
+      const frame = this.orcinus.h - 4
       const x = (Math.floor(parseInt(id) / frame) * 32) + 2
       const y = (parseInt(id) % frame) + 2
       this.write(key, x, y, 99, 3)
@@ -377,9 +367,9 @@ function Client () {
     const pad = 30
     const size = { w: window.innerWidth - (pad * 2), h: window.innerHeight - ((pad * 2) + this.tile.h * 2) }
     const tiles = { w: Math.ceil(size.w / this.tile.w), h: Math.ceil(size.h / this.tile.h) }
-    const bounds = this.orca.bounds()
+    const bounds = this.orcinus.bounds()
 
-    // Clamp at limits of orca file
+    // Clamp at limits of orcinus file
     if (tiles.w < bounds.w + 1) { tiles.w = bounds.w + 1 }
     if (tiles.h < bounds.h + 1) { tiles.h = bounds.h + 1 }
 
@@ -389,17 +379,17 @@ function Client () {
     if (this.cursor.x >= tiles.w) { this.cursor.moveTo(tiles.w - 1, this.cursor.y) }
     if (this.cursor.y >= tiles.h) { this.cursor.moveTo(this.cursor.x, tiles.h - 1) }
 
-    const w = this.tile.ws * this.orca.w
-    const h = (this.tile.hs + (this.tile.hs / 5)) * this.orca.h
+    const w = this.tile.ws * this.orcinus.w
+    const h = (this.tile.hs + (this.tile.hs / 5)) * this.orcinus.h
 
     if (w === this.el.width && h === this.el.height) { return }
 
-    console.log(`Resized to: ${this.orca.w}x${this.orca.h}`)
+    console.log(`Resized to: ${this.orcinus.w}x${this.orcinus.h}`)
 
     this.el.width = w
     this.el.height = h
-    this.el.style.width = `${Math.ceil(this.tile.w * this.orca.w)}px`
-    this.el.style.height = `${Math.ceil((this.tile.h + (this.tile.h / 5)) * this.orca.h)}px`
+    this.el.style.width = `${Math.ceil(this.tile.w * this.orcinus.w)}px`
+    this.el.style.height = `${Math.ceil((this.tile.h + (this.tile.h / 5)) * this.orcinus.h)}px`
 
     this.context.textBaseline = 'bottom'
     this.context.textAlign = 'center'
@@ -408,22 +398,22 @@ function Client () {
   }
 
   this.crop = (w, h) => {
-    let block = `${this.orca}`
+    let block = `${this.orcinus}`
 
-    if (h > this.orca.h) {
-      block = `${block}${`\n${'.'.repeat(this.orca.w)}`.repeat((h - this.orca.h))}`
-    } else if (h < this.orca.h) {
-      block = `${block}`.split(/\r?\n/).slice(0, (h - this.orca.h)).join('\n').trim()
+    if (h > this.orcinus.h) {
+      block = `${block}${`\n${'.'.repeat(this.orcinus.w)}`.repeat((h - this.orcinus.h))}`
+    } else if (h < this.orcinus.h) {
+      block = `${block}`.split(/\r?\n/).slice(0, (h - this.orcinus.h)).join('\n').trim()
     }
 
-    if (w > this.orca.w) {
-      block = `${block}`.split(/\r?\n/).map((val) => { return val + ('.').repeat((w - this.orca.w)) }).join('\n').trim()
-    } else if (w < this.orca.w) {
-      block = `${block}`.split(/\r?\n/).map((val) => { return val.substr(0, val.length + (w - this.orca.w)) }).join('\n').trim()
+    if (w > this.orcinus.w) {
+      block = `${block}`.split(/\r?\n/).map((val) => { return val + ('.').repeat((w - this.orcinus.w)) }).join('\n').trim()
+    } else if (w < this.orcinus.w) {
+      block = `${block}`.split(/\r?\n/).map((val) => { return val.substr(0, val.length + (w - this.orcinus.w)) }).join('\n').trim()
     }
 
     this.history.reset()
-    this.orca.load(w, h, block, this.orca.f)
+    this.orcinus.load(w, h, block, this.orcinus.f)
   }
 
   // Docs
@@ -451,10 +441,10 @@ function Client () {
     e.preventDefault()
     e.stopPropagation()
     for (const file of e.dataTransfer.files) {
-      if (file.name.indexOf('.orca') < 0) { continue }
+      if (file.name.indexOf('.orcinus') < 0) { continue }
       this.toggleGuide(false)
       this.source.read(file, null, true)
-      this.commander.start('inject:' + file.name.replace('.orca', ''))
+      this.commander.start('inject:' + file.name.replace('.orcinus', ''))
     }
   })
 
