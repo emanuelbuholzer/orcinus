@@ -21,5 +21,5 @@ If you wish to use orcinus inside your browser, open `index.html` from the root 
 ## Extras
 
 - Special thanks to [Hundredrabbits](http://100r.co/site/home.html) for creating [ORCA](https://github.com/hundredrabbits/Orca), which this application is based upon!
-- See the [License](LICENSE.md) file for license rights and limitations (MIT).
+- See the [License](LICENSE) file for license rights and limitations (MIT).
 - Pull Requests are welcome!
