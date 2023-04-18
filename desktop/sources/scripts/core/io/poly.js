@@ -7,21 +7,13 @@ const AudioContext = window.AudioContext || window.webkitAudioContext;
 function Poly (client) {
 
   this.stack = []
-
-  // TODO: How can we incorperate a lookahead and schedule ahead time?
   this.audioContext = new AudioContext();
-  this.osc = this.audioContext.createOscillator();
-  this.osc.connect(this.audioContext.destination);
 
   this.start = function () {
     console.info('Poly Starting..')
     if (this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }
-  }
-
-  this.clear = function () {
-    this.stack = this.stack.filter((item) => { return item })
   }
 
   this.run = function () {
@@ -38,26 +30,54 @@ function Poly (client) {
     }
   }
 
+  this.clear = function () {
+    this.stack = this.stack.filter((item) => { return item })
+  }
+
   this.trigger = function (item, down) {
     const transposed = this.transpose(item.note, item.octave)
-    const channel = !isNaN(item.channel) ? parseInt(item.channel) : client.orcinus.valueOf(item.channel)
-
     if (!transposed) { return }
 
+    const channel = !isNaN(item.channel) ? parseInt(item.channel) : client.orcinus.valueOf(item.channel)
     const c = down === true ? 0x90 + channel : 0x80 + channel
-    const n = transposed.id
-    const v = parseInt((item.velocity / 16) * 127)
 
+    const n = transposed.id
     if (!n || c === 127) { return }
 
+    let v = (item.velocity / 16)
+    v -= 0.5
+    if (v <= 0.01) {
+      v = 0.01;
+    }
+
     if (down) {
-      this.osc = this.audioContext.createOscillator();
-      this.osc.connect(this.audioContext.destination);
-      this.osc.frequency.value = 440*Math.pow(2,(n-69)/12);
-      this.osc.start(this.audioContext.currentTime);
-      this.osc.stop(this.audioContext.currentTime+item.length);
-    } else {
-      // this.osc.stop(this.audioContext.currentTime);
+      const osc = this.audioContext.createOscillator();
+      osc.type = "sine";
+
+      const frequency = 440*Math.pow(2,(n-69)/12)
+      const secondsAsFrequencyMultiple = (seconds) => Math.floor(seconds/(1/frequency))*(1/frequency)
+      osc.frequency.value = frequency;
+
+      const gainNode = this.audioContext.createGain();
+
+      const attackSeconds = secondsAsFrequencyMultiple(0.01);
+      const decaySeconds = secondsAsFrequencyMultiple(3.5);
+      const sustainLevel = 0.250;
+      const releaseSeconds = secondsAsFrequencyMultiple(0.25);
+
+      const startTime = this.audioContext.currentTime;
+      const endTime = startTime + attackSeconds + decaySeconds + releaseSeconds;
+
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(v, startTime + attackSeconds);
+      gainNode.gain.exponentialRampToValueAtTime(sustainLevel*v, startTime + attackSeconds + decaySeconds)
+      gainNode.gain.linearRampToValueAtTime(0, endTime)
+
+      osc.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      osc.start(startTime);
+      osc.stop(endTime);
     }
   }
 
