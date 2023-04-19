@@ -50,6 +50,8 @@ function Poly (client) {
       v = 0.01;
     }
 
+    const length = item.length/16;
+
     if (down) {
       const osc = this.audioContext.createOscillator();
       osc.type = "sine";
@@ -60,10 +62,10 @@ function Poly (client) {
 
       const gainNode = this.audioContext.createGain();
 
-      const attackSeconds = secondsAsFrequencyMultiple(0.01);
-      const decaySeconds = secondsAsFrequencyMultiple(3.5);
+      const attackSeconds = secondsAsFrequencyMultiple(0.01*length);
+      const decaySeconds = secondsAsFrequencyMultiple(3.5*length);
       const sustainLevel = 0.250;
-      const releaseSeconds = secondsAsFrequencyMultiple(0.25);
+      const releaseSeconds = secondsAsFrequencyMultiple(0.25*length);
 
       const startTime = this.audioContext.currentTime;
       const endTime = startTime + attackSeconds + decaySeconds + releaseSeconds;
