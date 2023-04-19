@@ -17,7 +17,7 @@ function Client () {
 
   this.theme = new Theme(this)
   this.acels = new Acels(this)
-  this.source = new Source(this)
+  this.source = new Source()
   this.history = new History(this)
 
   this.orcinus = new Orcinus(this.library)
@@ -44,10 +44,26 @@ function Client () {
 
 
     this.acels.set('File', 'New', 'CmdOrCtrl+N', () => { this.reset() })
-    this.acels.set('File', 'Open', 'CmdOrCtrl+O', () => { this.source.open('orcinus', this.whenOpen, true) })
-    this.acels.set('File', 'Import Modules', 'CmdOrCtrl+L', () => { this.source.load('orcinus') })
-    this.acels.set('File', 'Export', 'CmdOrCtrl+S', () => { this.source.write('orcinus', 'orcinus', `${this.orcinus}`, 'text/plain') })
-    this.acels.set('File', 'Export Selection', 'CmdOrCtrl+Shift+S', () => { this.source.write('orcinus', 'orcinus', `${this.cursor.selection()}`, 'text/plain') })
+    this.acels.set('File', 'Open', 'CmdOrCtrl+O', () => {
+      this.source.readFileSource().then(({name, content}) => {
+        this.source.writeLocalStorageSource(name, content);
+        this.whenOpen(content);
+        console.log(content);
+        this.update();
+      });
+    })
+    this.acels.set('File', 'Import Modules', 'CmdOrCtrl+L', () => {
+      this.source.readFileSource().then(({name, content}) => {
+        this.source.writeLocalStorageSource(name, content);
+        this.update();
+      });
+    })
+    this.acels.set('File', 'Export', 'CmdOrCtrl+S', () => {
+      this.source.writeFileSource(`${this.orcinus}`);
+    });
+    this.acels.set('File', 'Export Selection', 'CmdOrCtrl+Shift+S', () => {
+      this.source.writeFileSource(`${this.cursor.selection()}`);
+    });
 
     this.acels.set('Edit', 'Undo', 'CmdOrCtrl+Z', () => { this.history.undo() })
     this.acels.set('Edit', 'Redo', 'CmdOrCtrl+Shift+Z', () => { this.history.redo() })
@@ -139,10 +155,8 @@ function Client () {
   this.reset = () => {
     this.orcinus.reset()
     this.resize()
-    this.source.new()
     this.history.reset()
     this.cursor.reset()
-    this.clock.play()
   }
 
   this.run = () => {
@@ -162,7 +176,7 @@ function Client () {
     this.drawGuide()
   }
 
-  this.whenOpen = (file, text) => {
+  this.whenOpen = (text) => {
     const lines = text.trim().split(/\r?\n/)
     const w = lines[0].length
     const h = lines.length
@@ -320,7 +334,7 @@ function Client () {
     if (this.commander.isActive === true) {
       this.write(`${this.commander.query}${this.orcinus.f % 2 === 0 ? '_' : ''}`, this.grid.w * 0, this.orcinus.h + 1, this.grid.w * 4)
     } else {
-      this.write(this.orcinus.f < 25 ? `ver${this.version}` : `${Object.keys(this.source.cache).length} mods`, this.grid.w * 0, this.orcinus.h + 1, this.grid.w)
+      this.write(this.orcinus.f < 25 ? `ver${this.version}` : `${Object.keys(this.source.readLocalStorageSources()).length} mods`, this.grid.w * 0, this.orcinus.h + 1, this.grid.w)
       this.write(`${this.orcinus.w}x${this.orcinus.h}`, this.grid.w * 1, this.orcinus.h + 1, this.grid.w)
       this.write(`${this.grid.w}/${this.grid.h}${this.tile.w !== 10 ? ' ' + (this.tile.w / 10).toFixed(1) : ''}`, this.grid.w * 2, this.orcinus.h + 1, this.grid.w)
       this.write(`${this.clock}`, this.grid.w * 3, this.orcinus.h + 1, this.grid.w, this.clock.isPaused ? 20 : 2)
@@ -441,10 +455,12 @@ function Client () {
     e.preventDefault()
     e.stopPropagation()
     for (const file of e.dataTransfer.files) {
-      if (file.name.indexOf('.orcinus') < 0) { continue }
       this.toggleGuide(false)
-      this.source.read(file, null, true)
-      this.commander.start('inject:' + file.name.replace('.orcinus', ''))
+      this.source.readFileSource(file).then(({name, content}) => {
+        this.source.writeLocalStorageSource(name, content);
+        this.update();
+        this.commander.start('inject:' + file.name)
+      });
     }
   })
 

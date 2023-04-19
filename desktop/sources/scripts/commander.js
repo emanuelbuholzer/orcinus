@@ -13,11 +13,10 @@ function Commander (client) {
     select: (p) => { client.cursor.select(p.x, p.y, p.w || 0, p.h || 0) },
     inject: (p) => {
       client.cursor.select(p._x, p._y)
-      if (client.source.cache[p._str + '.orcinus']) {
-        const block = client.source.cache[p._str + '.orcinus']
-        const rect = client.orcinus.toRect(block)
-        client.cursor.scaleTo(rect.x, rect.y)
-      }
+      const block = client.source.readLocalStorageSource(p._str);
+      if (!block) { console.warn('Commander', 'Unknown block: ' + p._str); return }
+      const rect = client.orcinus.toRect(block)
+      client.cursor.scaleTo(rect.x, rect.y)
     }
   }
 
@@ -44,7 +43,7 @@ function Commander (client) {
     find: (p) => { client.cursor.find(p.str) },
     select: (p) => { client.cursor.select(p.x, p.y, p.w || 0, p.h || 0) },
     inject: (p, origin) => {
-      const block = client.source.cache[p._str + '.orcinus']
+      const block = client.source.readLocalStorageSource(p._str);
       if (!block) { console.warn('Commander', 'Unknown block: ' + p._str); return }
       client.orcinus.writeBlock(origin ? origin.x : client.cursor.x, origin ? origin.y : client.cursor.y, block)
       client.cursor.scaleTo(0, 0)
