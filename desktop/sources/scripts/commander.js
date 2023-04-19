@@ -31,7 +31,9 @@ function Commander (client) {
     run: (p) => { client.run() },
     // Time
     apm: (p) => { client.clock.setSpeed(null, p.int) },
-    bpm: (p) => { client.clock.setSpeed(p.int, p.int, true) },
+    bpm: (p) => {
+      client.clock.setSpeed(p.int, p.int, !client.clock.isPaused)
+    },
     frame: (p) => { client.clock.setFrame(p.int) },
     rewind: (p) => { client.clock.setFrame(client.orcinus.f - p.int) },
     skip: (p) => { client.clock.setFrame(client.orcinus.f + p.int) },
@@ -113,6 +115,7 @@ function Commander (client) {
 
   this.trigger = function (msg = this.query, origin = null, stopping = true) {
     const cmd = `${msg}`.split(':')[0].trim().replace(/\W/g, '').toLowerCase()
+    console.log("Received command", cmd);
     const val = `${msg}`.substr(cmd.length + 1)
     const fn = this.actives[cmd]
     if (!fn) { console.warn('Commander', `Unknown message: ${msg}`); this.stop(); return }
