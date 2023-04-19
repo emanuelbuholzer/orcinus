@@ -56,14 +56,12 @@ function Clock (client) {
   }
 
   this.play = function (msg = false, midiStart = false) {
-    console.log('Clock', 'Play', msg, midiStart)
     if (this.isPaused === false && !midiStart) { return }
     this.isPaused = false
     this.setSpeed(this.speed.target, this.speed.target, true)
   }
 
   this.stop = function (msg = false) {
-    console.log('Clock', 'Stop')
     if (this.isPaused === true) { return }
     this.isPaused = true
     this.clearTimer()

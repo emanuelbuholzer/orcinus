@@ -6,7 +6,6 @@ function IO (client) {
   this.poly = new Poly(client)
 
   this.start = function () {
-    console.log('IO Start')
     this.poly.start()
     this.clear()
   }

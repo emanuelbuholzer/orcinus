@@ -10,7 +10,7 @@ function Poly (client) {
   this.audioContext = new AudioContext();
 
   this.start = function () {
-    console.info('Poly Starting..')
+    console.debug('Poly Starting..')
     if (this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }

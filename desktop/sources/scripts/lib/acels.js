@@ -54,7 +54,9 @@ function Acels (client) {
   }
 
   this.onKeyDown = (e) => {
-    const target = this.get(this.convert(e))
+    const keys = this.convert(e);
+    console.debug("Received key down for ", keys);
+    const target = this.get(keys);
     if (!target || !target.downfn) { return this.pipe ? this.pipe.onKeyDown(e) : null }
     target.downfn()
     e.preventDefault()

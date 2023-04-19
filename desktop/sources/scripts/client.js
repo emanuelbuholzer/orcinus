@@ -203,7 +203,7 @@ function Client () {
   this.toggleGuide = (force = null) => {
     const display = force !== null ? force : this.guide !== true
     if (display === this.guide) { return }
-    console.log('Client', `Toggle Guide: ${display}`)
+    console.debug('Client', `Toggle Guide: ${display}`)
     this.guide = display
     this.update()
   }
@@ -398,7 +398,7 @@ function Client () {
 
     if (w === this.el.width && h === this.el.height) { return }
 
-    console.log(`Resized to: ${this.orcinus.w}x${this.orcinus.h}`)
+    console.debug(`Resized to: ${this.orcinus.w}x${this.orcinus.h}`)
 
     this.el.width = w
     this.el.height = h

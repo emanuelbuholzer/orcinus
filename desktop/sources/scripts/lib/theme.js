@@ -30,13 +30,12 @@ function Theme (client) {
   }
 
   this.start = () => {
-    console.log('Theme', 'Starting..')
     this.load(this.theme)
   }
 
   this.load = (theme) => {
-    if (!isValid(theme)) { console.warn('Theme', 'Invalid format'); return }
-    console.log('Theme', 'Loaded theme!')
+    if (!isValid(theme)) { console.error('Theme', 'Invalid format'); return }
+    console.debug('Theme', 'Loaded theme!')
     this.el.innerHTML = `:root { 
       --background: ${theme.background}; 
       --f_high: ${theme.f_high}; 
