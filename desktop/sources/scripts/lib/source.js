@@ -84,4 +84,15 @@ class Source {
     sources[key] = source;
     localStorage.setItem("sources", JSON.stringify(sources));
   }
+
+  writeHashSource(source) {
+    window.location.hash = `#${encodeURIComponent(source)}`;
+  }
+
+  readHashSource() {
+    const hash = window.location.hash;
+    if (hash.length > 0) {
+      return decodeURIComponent(hash.substring(1));
+    }
+  }
 }

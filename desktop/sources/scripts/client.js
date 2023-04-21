@@ -12,7 +12,7 @@
 /* global Theme */
 
 function Client () {
-  this.version = 178
+  this.version = 1
   this.library = library
 
   this.theme = new Theme(this)
@@ -42,13 +42,11 @@ function Client () {
     host.appendChild(this.el)
     this.theme.install(host)
 
-
     this.acels.set('File', 'New', 'CmdOrCtrl+N', () => { this.reset() })
     this.acels.set('File', 'Open', 'CmdOrCtrl+O', () => {
       this.source.readFileSource().then(({name, content}) => {
         this.source.writeLocalStorageSource(name, content);
         this.whenOpen(content);
-        console.log(content);
         this.update();
       });
     })
@@ -142,7 +140,14 @@ function Client () {
     this.clock.start()
     this.cursor.start()
 
-    this.reset()
+    const source = this.source.readHashSource();
+    if (source !== undefined) {
+      this.whenOpen(source);
+      this.update();
+    } else {
+      this.reset()
+
+    }
     this.modZoom()
     this.update()
     this.el.className = 'ready'
@@ -174,6 +179,7 @@ function Client () {
     this.drawProgram()
     this.drawInterface()
     this.drawGuide()
+    this.source.writeHashSource(`${this.orcinus}`);
   }
 
   this.whenOpen = (text) => {
