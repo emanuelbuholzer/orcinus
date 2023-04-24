@@ -517,7 +517,7 @@ library.$ = function OperatorSelf (orcinus, x, y, passive) {
   Operator.call(this, orcinus, x, y, '*', true)
 
   this.name = 'self'
-  this.info = 'Sends ORCA command'
+  this.info = 'Sends orcinus command'
 
   this.run = function (force = false) {
     let msg = ''
@@ -539,8 +539,8 @@ library.$ = function OperatorSelf (orcinus, x, y, passive) {
 library[':'] = function OperatorMidi (orcinus, x, y, passive) {
   Operator.call(this, orcinus, x, y, ':', true)
 
-  this.name = 'midi'
-  this.info = 'Sends MIDI note'
+  this.name = 'sine'
+  this.info = 'Trigger a sine'
   this.ports.channel = { x: 1, y: 0 }
   this.ports.octave = { x: 2, y: 0, clamp: { min: 0, max: 8 } }
   this.ports.note = { x: 3, y: 0 }
@@ -568,159 +568,6 @@ library[':'] = function OperatorMidi (orcinus, x, y, passive) {
     }
 
     this.draw = false
-  }
-}
-
-library['!'] = function OperatorCC (orcinus, x, y) {
-  Operator.call(this, orcinus, x, y, '!', true)
-
-  this.name = 'cc'
-  this.info = 'Sends MIDI control change'
-  this.ports.channel = { x: 1, y: 0 }
-  this.ports.knob = { x: 2, y: 0, clamp: { min: 0 } }
-  this.ports.value = { x: 3, y: 0, clamp: { min: 0 } }
-
-  this.operation = function (force = false) {
-    if (!this.hasNeighbor('*') && force === false) { return }
-    if (this.listen(this.ports.channel) === '.') { return }
-    if (this.listen(this.ports.knob) === '.') { return }
-
-    const channel = this.listen(this.ports.channel, true)
-    if (channel > 15) { return }
-    const knob = this.listen(this.ports.knob, true)
-    const rawValue = this.listen(this.ports.value, true)
-    const value = Math.ceil((127 * rawValue) / 35)
-
-    client.io.cc.stack.push({ channel, knob, value, type: 'cc' })
-
-    this.draw = false
-
-    if (force === true) {
-      client.io.cc.run()
-    }
-  }
-}
-
-library['?'] = function OperatorPB (orcinus, x, y) {
-  Operator.call(this, orcinus, x, y, '?', true)
-
-  this.name = 'pb'
-  this.info = 'Sends MIDI pitch bend'
-  this.ports.channel = { x: 1, y: 0, clamp: { min: 0, max: 15 } }
-  this.ports.lsb = { x: 2, y: 0, clamp: { min: 0 } }
-  this.ports.msb = { x: 3, y: 0, clamp: { min: 0 } }
-
-  this.operation = function (force = false) {
-    if (!this.hasNeighbor('*') && force === false) { return }
-    if (this.listen(this.ports.channel) === '.') { return }
-    if (this.listen(this.ports.lsb) === '.') { return }
-
-    const channel = this.listen(this.ports.channel, true)
-    const rawlsb = this.listen(this.ports.lsb, true)
-    const lsb = Math.ceil((127 * rawlsb) / 35)
-    const rawmsb = this.listen(this.ports.msb, true)
-    const msb = Math.ceil((127 * rawmsb) / 35)
-
-    client.io.cc.stack.push({ channel, lsb, msb, type: 'pb' })
-
-    this.draw = false
-
-    if (force === true) {
-      client.io.cc.run()
-    }
-  }
-}
-
-library['%'] = function OperatorMono (orcinus, x, y, passive) {
-  Operator.call(this, orcinus, x, y, '%', true)
-
-  this.name = 'mono'
-  this.info = 'Sends MIDI monophonic note'
-  this.ports.channel = { x: 1, y: 0 }
-  this.ports.octave = { x: 2, y: 0, clamp: { min: 0, max: 8 } }
-  this.ports.note = { x: 3, y: 0 }
-  this.ports.velocity = { x: 4, y: 0, default: 'f', clamp: { min: 0, max: 16 } }
-  this.ports.length = { x: 5, y: 0, default: '1', clamp: { min: 0, max: 32 } }
-
-  this.operation = function (force = false) {
-    if (!this.hasNeighbor('*') && force === false) { return }
-    if (this.listen(this.ports.channel) === '.') { return }
-    if (this.listen(this.ports.octave) === '.') { return }
-    if (this.listen(this.ports.note) === '.') { return }
-    if (!isNaN(this.listen(this.ports.note))) { return }
-
-    const channel = this.listen(this.ports.channel, true)
-    if (channel > 15) { return }
-    const octave = this.listen(this.ports.octave, true)
-    const note = this.listen(this.ports.note)
-    const velocity = this.listen(this.ports.velocity, true)
-    const length = this.listen(this.ports.length, true)
-
-    client.io.mono.push(channel, octave, note, velocity, length)
-
-    if (force === true) {
-      client.io.mono.run()
-    }
-
-    this.draw = false
-  }
-}
-
-library['='] = function OperatorOsc (orcinus, x, y, passive) {
-  Operator.call(this, orcinus, x, y, '=', true)
-
-  this.name = 'osc'
-  this.info = 'Sends OSC message'
-
-  this.ports.path = { x: 1, y: 0 }
-
-  this.operation = function (force = false) {
-    let msg = ''
-    for (let x = 2; x <= 36; x++) {
-      const g = orcinus.glyphAt(this.x + x, this.y)
-      orcinus.lock(this.x + x, this.y)
-      if (g === '.') { break }
-      msg += g
-    }
-
-    if (!this.hasNeighbor('*') && force === false) { return }
-
-    const path = this.listen(this.ports.path)
-
-    if (!path || path === '.') { return }
-
-    this.draw = false
-    client.io.osc.push('/' + path, msg)
-
-    if (force === true) {
-      client.io.osc.run()
-    }
-  }
-}
-
-library[';'] = function OperatorUdp (orcinus, x, y, passive) {
-  Operator.call(this, orcinus, x, y, ';', true)
-
-  this.name = 'udp'
-  this.info = 'Sends UDP message'
-
-  this.operation = function (force = false) {
-    let msg = ''
-    for (let x = 1; x <= 36; x++) {
-      const g = orcinus.glyphAt(this.x + x, this.y)
-      orcinus.lock(this.x + x, this.y)
-      if (g === '.') { break }
-      msg += g
-    }
-
-    if (!this.hasNeighbor('*') && force === false) { return }
-
-    this.draw = false
-    client.io.udp.push(msg)
-
-    if (force === true) {
-      client.io.udp.run()
-    }
   }
 }
 
