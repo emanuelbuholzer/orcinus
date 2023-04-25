@@ -86,13 +86,13 @@ class Source {
   }
 
   writeHashSource(source) {
-    window.location.hash = `#${encodeURIComponent(source)}`;
+    window.location.hash = `#${LZString.compressToEncodedURIComponent(source)}`;
   }
 
   readHashSource() {
     const hash = window.location.hash;
     if (hash.length > 0) {
-      return decodeURIComponent(hash.substring(1));
+      return LZString.decompressFromEncodedURIComponent(hash.substring(1));
     }
   }
 }

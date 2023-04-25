@@ -17,7 +17,8 @@ const assets = [
   './desktop/sources/scripts/clock.js',
   './desktop/sources/scripts/commander.js',
   './desktop/sources/scripts/cursor.js',
-  './desktop/sources/scripts/client.js'
+  './desktop/sources/scripts/client.js',
+  './desktop/sources/scripts/lz-string.js',
 ]
 
 self.addEventListener('install', async function () {
