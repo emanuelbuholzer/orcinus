@@ -413,7 +413,7 @@ function Client () {
 
     this.context.textBaseline = 'bottom'
     this.context.textAlign = 'center'
-    this.context.font = `${this.tile.hs * 0.75}px input_mono_medium`
+    this.context.font = `700 ${this.tile.hs * 0.75}px 'Courier New', sans-serif`
     this.update()
   }
 
