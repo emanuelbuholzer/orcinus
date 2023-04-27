@@ -571,6 +571,39 @@ library[':'] = function OperatorMidi (orcinus, x, y, passive) {
   }
 }
 
+library['|'] = function OperatorEnvelope (orcinus, x, y, passive) {
+  Operator.call(this, orcinus, x, y, '|', passive)
+
+  this.name = 'envelope'
+  this.info = 'Create an envelope'
+  this.ports.channel = { x: 1, y: 0 }
+  this.ports.attack = { x: 2, y: 0, default: '1', clamp: { min: 0, max: 32 } }
+  this.ports.decay = { x: 3, y: 0, default: '1', clamp: { min: 0, max: 32 } }
+  this.ports.sustain = { x: 4, y: 0, default: '1', clamp: { min: 0, max: 32 } }
+  this.ports.release = { x: 5, y: 0, default: '1', clamp: { min: 0, max: 32 } }
+
+  this.run = function (force = false) {
+
+    if (!this.hasNeighbor('*') && force === false) { return }
+    if (this.listen(this.ports.channel) === '.') { return }
+    if (this.listen(this.ports.attack) === '.') { return }
+    if (this.listen(this.ports.decay) === '.') { return }
+    if (this.listen(this.ports.sustain) === '.') { return }
+    if (this.listen(this.ports.release) === '.') { return }
+
+    const channel = this.listen(this.ports.channel, true)
+    if (channel > 15) { return }
+    const attack = this.listen(this.ports.attack, true)
+    const decay = this.listen(this.ports.decay, true)
+    const sustain = this.listen(this.ports.sustain, true)
+    const release = this.listen(this.ports.release, true)
+
+    client.io.poly.setEnvelope(channel, attack, decay, sustain, release);
+
+    this.draw = false
+  }
+}
+
 // Add numbers
 
 for (let i = 0; i <= 9; i++) {

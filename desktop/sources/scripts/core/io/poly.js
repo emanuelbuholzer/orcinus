@@ -4,10 +4,21 @@ const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 /* global transposeTable */
 
+const attack = x => 0.000135028*Math.pow(148118,x)
+const decayOrRelease = x => 0.00129159*Math.pow(46454.5,x)
+const sustain = x => 0.000130158*Math.pow(7682.21,x)
+
 function Poly (client) {
 
   this.stack = []
   this.audioContext = new AudioContext();
+  this.channelEnvelopes = []
+
+  this.setEnvelope = function (channel, attack, decay, sustain, release) {
+    this.channelEnvelopes[channel] = {
+      attack, decay, sustain, release
+    }
+  }
 
   this.start = function () {
     console.debug('Poly Starting..')
@@ -62,10 +73,16 @@ function Poly (client) {
 
       const gainNode = this.audioContext.createGain();
 
-      const attackSeconds = secondsAsFrequencyMultiple(0.01*length);
-      const decaySeconds = secondsAsFrequencyMultiple(3.5*length);
-      const sustainLevel = 0.250;
-      const releaseSeconds = secondsAsFrequencyMultiple(0.25*length);
+      let attackSeconds = secondsAsFrequencyMultiple(0.01*(length*8));
+      let decaySeconds = secondsAsFrequencyMultiple(3.5*length);
+      let sustainLevel = 0.150;
+      let releaseSeconds = secondsAsFrequencyMultiple(1.25*length);
+      if (this.channelEnvelopes[channel] !== undefined) {
+        attackSeconds = attack(this.channelEnvelopes[channel].attack/17);
+        decaySeconds = decayOrRelease(this.channelEnvelopes[channel].decay/17);
+        sustainLevel = sustain(this.channelEnvelopes[channel].sustain/17);
+        releaseSeconds = decayOrRelease(this.channelEnvelopes[channel].release/17);
+      }
 
       const startTime = this.audioContext.currentTime;
       const endTime = startTime + attackSeconds + decaySeconds + releaseSeconds;
