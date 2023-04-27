@@ -351,15 +351,17 @@ function Client () {
   this.drawGuide = () => {
     if (this.guide !== true) { return }
     const operators = Object.keys(this.library).filter((val) => { return isNaN(val) })
+    this.write("operators", 2, 2, 32, 3)
     for (const id in operators) {
       const key = operators[id]
       const oper = new this.library[key]()
       const text = oper.info
       const frame = this.orcinus.h - 4
       const x = (Math.floor(parseInt(id) / frame) * 32) + 2
-      const y = (parseInt(id) % frame) + 2
-      this.write(key, x, y, 99, 3)
-      this.write(text, x + 2, y, 99, 10)
+      const y = (parseInt(id) % frame) + 3
+      this.write(key.toUpperCase(), x, y, 99, 0)
+      this.write(' ', x+1,  y, 99, 0)
+      this.write(text + " ".repeat(42), x + 2, y, 32, 0)
     }
   }
 
