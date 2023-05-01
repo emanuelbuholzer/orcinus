@@ -52,6 +52,10 @@ function Commander (client) {
     },
     write: (p) => {
       client.orcinus.writeBlock(p._x || client.cursor.x, p._y || client.cursor.y, p._str)
+    },
+    ui: (p) => {
+      client.interface = p.int !== 0
+      client.resize()
     }
   }
 

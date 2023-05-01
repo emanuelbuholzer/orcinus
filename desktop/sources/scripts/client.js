@@ -34,6 +34,7 @@ function Client () {
     h: +localStorage.getItem('tileh') || 15
   }
   this.guide = false
+  this.interface = true;
 
   this.el = document.createElement('canvas')
   this.context = this.el.getContext('2d')
@@ -332,6 +333,8 @@ function Client () {
   }
 
   this.drawInterface = () => {
+    if (!this.interface) return;
+
     this.write(`${this.cursor.inspect()}`, this.grid.w * 0, this.orcinus.h, this.grid.w - 1)
     this.write(`${this.cursor.x},${this.cursor.y}${this.cursor.ins ? '+' : ''}`, this.grid.w * 1, this.orcinus.h, this.grid.w, this.cursor.ins ? 1 : 2)
     this.write(`${this.cursor.w}:${this.cursor.h}`, this.grid.w * 2, this.orcinus.h, this.grid.w)
@@ -387,7 +390,7 @@ function Client () {
 
   this.resize = () => {
     const pad = 30
-    const size = { w: window.innerWidth - (pad * 2), h: window.innerHeight - ((pad * 2) + this.tile.h * 2) }
+    const size = { w: window.innerWidth - (pad * 2), h: window.innerHeight - ((pad * (this.interface ? 2 : 1)) + this.tile.h * 2) }
     const tiles = { w: Math.ceil(size.w / this.tile.w), h: Math.ceil(size.h / this.tile.h) }
     const bounds = this.orcinus.bounds()
 
