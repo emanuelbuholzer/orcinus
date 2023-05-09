@@ -92,8 +92,39 @@ function Poly (client) {
       gainNode.gain.exponentialRampToValueAtTime(sustainLevel*v, startTime + attackSeconds + decaySeconds)
       gainNode.gain.linearRampToValueAtTime(0, endTime)
 
+
+      const dryGainNode = this.audioContext.createGain();
+      const wetGainNode = this.audioContext.createGain();
+
+      const leftDelayNode = this.audioContext.createDelay();
+      const rightDelayNode = this.audioContext.createDelay();
+
+      const delayTime = 0.5; // in seconds
+      const feedback = 0.7;
+      leftDelayNode.delayTime.value = delayTime;
+      rightDelayNode.delayTime.value = delayTime;
+
+      const feedbackGainNode = this.audioContext.createGain();
+      feedbackGainNode.gain.value = feedback
+
+      dryGainNode.gain.value = 0.5;
+      wetGainNode.gain.value = 0.5;
+
       osc.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
+      gainNode.connect(dryGainNode);
+      dryGainNode.connect(this.audioContext.destination);
+
+      gainNode.connect(leftDelayNode);
+      leftDelayNode.connect(feedbackGainNode);
+      feedbackGainNode.connect(leftDelayNode);
+      feedbackGainNode.connect(wetGainNode);
+      wetGainNode.connect(this.audioContext.destination);
+
+      gainNode.connect(rightDelayNode);
+      rightDelayNode.connect(wetGainNode);
+      feedbackGainNode.connect(rightDelayNode);
+      feedbackGainNode.connect(wetGainNode)
+      wetGainNode.connect(this.audioContext.destination);
 
       osc.start(startTime);
       osc.stop(endTime);
